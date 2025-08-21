@@ -143,7 +143,7 @@ img{ max-width: 100%; display:block; }
 @font-face {
   font-family: magistral-bold;
   src: url('fonts/magistral-bold.woff2') format('woff2'),
-       url('fonts/magistral-bold.woff') format('woff');
+       url('Assets/fonts/magistral-bold.woff') format('woff');
   font-weight: bold;
   font-style: normal;
 }
