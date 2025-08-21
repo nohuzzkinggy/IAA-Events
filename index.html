@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IAA Events</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">
+      <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f680.png" alt="" class="logo">
+      <span>IAA Events</span>
+    </div>
+    <div id="userArea" class="user-area">
+      <button id="loginBtn" class="btn primary">Login with Discord</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="adminPanel" class="admin-panel hidden">
+      <h2>Create Event (Admins Only)</h2>
+      <form id="eventForm" class="event-form">
+        <div class="grid">
+          <label>Title
+            <input type="text" id="title" placeholder="Event title" required>
+          </label>
+          <label>Host
+            <input type="text" id="host" placeholder="Host name" required>
+          </label>
+          <label>Date & Time
+            <input type="datetime-local" id="date" required>
+          </label>
+          <label>Location
+            <input type="text" id="location" placeholder="City / Server / Link" required>
+          </label>
+          <label>Image URL (top of card)
+            <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg" required>
+          </label>
+        </div>
+        <label>Description
+          <textarea id="description" rows="4" placeholder="What is this event about?"></textarea>
+        </label>
+
+        <label class="checkbox">
+          <input type="checkbox" id="isFree" checked>
+          Free event
+        </label>
+
+        <button type="submit" class="btn success">Create Event</button>
+      </form>
+      <hr class="divider">
+    </section>
+
+    <section>
+      <h2>Upcoming Events</h2>
+      <div id="eventsGrid" class="events-grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom. Portions of the materials contained herein are property of Another Axiom. ©2021 Another Axiom Inc.</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
