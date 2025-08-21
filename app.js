@@ -1,11 +1,11 @@
 /* ---------------------------
-   CONFIG
+   CONFIG — EDIT THESE
 ---------------------------- */
-const DISCORD_CLIENT_ID = "1408022676521357322";
-const REDIRECT_URI = "https://nohuzzkinggy.github.io/IAA-Events/";
-const OAUTH_SCOPES = ["identify"];
+const DISCORD_CLIENT_ID = "YOUR_CLIENT_ID_HERE";
+const REDIRECT_URI = window.location.origin + window.location.pathname; // e.g. https://example.com/index.html
+const OAUTH_SCOPES = ["identify"]; // we only need the user's id & username
 
-// Admin whitelist — only these users can create/delete events
+// Add Discord User IDs here. Anyone in this list can create/delete events.
 const ADMIN_WHITELIST = [
   // "123456789012345678", // <- your Discord user ID
 ];
@@ -18,15 +18,15 @@ const STORAGE_KEY = "scraprun.events.v1";
 function loadEvents(){
   const raw = localStorage.getItem(STORAGE_KEY);
   if(!raw){
-    // Seed with default event
+    // Seed with your sample event: Scraprun — hosted by AA_KKINGVRR
     const seed = [{
       id: crypto.randomUUID(),
       title: "Scraprun",
       host: "AA_KKINGVRR",
-      date: new Date(Date.now() + 7*24*3600*1000).toISOString(),
-      location: "Online",
+      date: new Date(Date.now() + 7*24*3600*1000).toISOString(), // +7 days
+      location: "All servers",
       imageUrl: "https://images.unsplash.com/photo-1535223289827-42f1e9919769?q=80&w=1600&auto=format&fit=crop",
-      description: "A fast-paced run — bring your A-game. Meet other players and have fun.",
+      description: "A fast-paced run — bring your A‑game. Meet other players and have fun.",
       isFree: true,
       createdBy: "system"
     }];
@@ -40,9 +40,6 @@ function loadEvents(){
 function saveEvents(events){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
 }
-
-// global events variable
-let EVENTS = loadEvents();
 
 /* ---------------------------
    AUTH (Discord implicit flow)
@@ -68,6 +65,7 @@ function parseHashToken(){
       expires_in: Number(h.get("expires_in") || 0),
       obtained_at: Date.now()
     };
+    // Clean the hash from the URL
     history.replaceState({}, document.title, window.location.pathname);
     sessionStorage.setItem("discord_token", JSON.stringify(token));
     return token;
@@ -80,6 +78,8 @@ function getSavedToken(){
   if(!raw) return null;
   try{
     const t = JSON.parse(raw);
+    if(!t.access_token) return null;
+    // naive expiry check
     const ageSec = (Date.now() - (t.obtained_at || Date.now())) / 1000;
     if(t.expires_in && ageSec > t.expires_in) {
       sessionStorage.removeItem("discord_token");
@@ -94,7 +94,7 @@ async function fetchDiscordUser(token){
     headers: { Authorization: `Bearer ${token.access_token}` }
   });
   if(!res.ok) throw new Error("Failed to fetch Discord user");
-  return await res.json();
+  return await res.json(); // { id, username, discriminator (legacy), global_name, avatar, ... }
 }
 
 function avatarUrl(user){
@@ -112,6 +112,7 @@ const loginBtn = document.getElementById("loginBtn");
 const userArea = document.getElementById("userArea");
 const eventForm = document.getElementById("eventForm");
 
+let EVENTS = loadEvents();
 let CURRENT_USER = null;
 let IS_ADMIN = false;
 
@@ -177,59 +178,139 @@ function renderEvents(){
     return;
   }
 
-  area.innerHTML = `
-    <img src="${avatarUrl(user)}" alt="avatar" width="32" height="32">
-    <span>${user.username}#${user.discriminator}</span>
-    <button id="logout-btn">Logout</button>
-  `;
+  // show soonest first
+  const sorted = [...EVENTS].sort((a,b)=> new Date(a.date) - new Date(b.date));
 
-  document.getElementById("logout-btn").onclick = () => {
-    sessionStorage.removeItem("discord_token");
-    location.reload();
-  };
+  for(const ev of sorted){
+    const card = document.createElement("article");
+    card.className = "card";
 
-  if(ADMIN_WHITELIST.includes(user.id)){
-    document.getElementById("admin-panel").style.display = "block";
-  } else {
-    document.getElementById("admin-panel").style.display = "none";
+    // top image
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+    const img = document.createElement("img");
+    img.src = ev.imageUrl;
+    img.alt = ev.title;
+    thumb.appendChild(img);
+
+    // badge "Free"
+    if(ev.isFree){
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.textContent = "Free";
+      thumb.appendChild(badge);
+    }
+
+    const body = document.createElement("div");
+    body.className = "body";
+
+    const h3 = document.createElement("h3");
+    h3.textContent = ev.title;
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = `${fmtDate(ev.date)} • ${ev.location}`;
+
+    const host = document.createElement("div");
+    host.className = "meta";
+    host.textContent = `Hosted by ${ev.host}`;
+
+    const desc = document.createElement("div");
+    desc.className = "desc";
+    desc.textContent = ev.description || "";
+
+    body.appendChild(h3);
+    body.appendChild(meta);
+    body.appendChild(host);
+    body.appendChild(desc);
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const detailsBtn = document.createElement("button");
+    detailsBtn.className = "btn";
+    detailsBtn.textContent = "Details";
+    detailsBtn.addEventListener("click", ()=>{
+      alert(`${ev.title}\n\nHost: ${ev.host}\nWhen: ${fmtDate(ev.date)}\nWhere: ${ev.location}\n\n${ev.description || ""}`);
+    });
+    actions.appendChild(detailsBtn);
+
+    if(IS_ADMIN){
+      const del = document.createElement("button");
+      del.className = "btn danger";
+      del.textContent = "Delete";
+      del.addEventListener("click", ()=>{
+        if(confirm(`Delete "${ev.title}"?`)){
+          EVENTS = EVENTS.filter(x => x.id !== ev.id);
+          saveEvents(EVENTS);
+          renderEvents();
+        }
+      });
+      actions.appendChild(del);
+    }
+
+    card.appendChild(thumb);
+    card.appendChild(body);
+    card.appendChild(actions);
+
+    eventsGrid.appendChild(card);
   }
 }
 
 /* ---------------------------
-   INIT
+   FORM HANDLERS
 ---------------------------- */
-async function init(){
-  let token = parseHashToken() || getSavedToken();
-  let user = null;
+eventForm?.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  if(!IS_ADMIN) return alert("Only admins can create events.");
 
-  if(token){
-    try { user = await fetchDiscordUser(token); }
-    catch { sessionStorage.removeItem("discord_token"); }
+  const newEvent = {
+    id: crypto.randomUUID(),
+    title: document.getElementById("title").value.trim(),
+    host: document.getElementById("host").value.trim(),
+    date: document.getElementById("date").value,
+    location: document.getElementById("location").value.trim(),
+    imageUrl: document.getElementById("imageUrl").value.trim(),
+    description: document.getElementById("description").value.trim(),
+    isFree: document.getElementById("isFree").checked,
+    createdBy: CURRENT_USER?.id || "unknown"
+  };
+
+  // basic guardrails
+  if(!newEvent.title || !newEvent.host || !newEvent.date || !newEvent.location || !newEvent.imageUrl){
+    return alert("Please fill all required fields.");
   }
 
-  renderUserArea(user);
-  renderEvents(user);
+  EVENTS.push(newEvent);
+  saveEvents(EVENTS);
+  e.target.reset();
+  renderEvents();
+});
 
-  // Admin create event
-  const form = document.getElementById("create-event-form");
-  form.onsubmit = (e) => {
-    e.preventDefault();
-    const newEv = {
-      id: crypto.randomUUID(),
-      title: document.getElementById("event-title").value,
-      host: document.getElementById("event-host").value,
-      date: document.getElementById("event-date").value,
-      location: document.getElementById("event-location").value,
-      imageUrl: document.getElementById("event-image").value,
-      description: document.getElementById("event-description").value,
-      isFree: true,
-      createdBy: user.id
-    };
-    EVENTS.push(newEv);
-    saveEvents(EVENTS);
-    renderEvents(user);
-    form.reset();
-  };
-}
+/* ---------------------------
+   BOOTSTRAP
+---------------------------- */
+(async function init(){
+  // handle #access_token from Discord
+  parseHashToken();
 
-window.onload = init;
+  // restore token and maybe fetch user
+  const token = getSavedToken();
+  if(token){
+    try{
+      const me = await fetchDiscordUser(token);
+      CURRENT_USER = me;
+      IS_ADMIN = ADMIN_WHITELIST.includes(me.id);
+    }catch{
+      // token invalid — clear it
+      sessionStorage.removeItem("discord_token");
+    }
+  }
+
+  // wire login button (if present in initial DOM)
+  loginBtn?.addEventListener("click", ()=> window.location.href = buildAuthURL());
+
+  renderUserArea();
+  renderAdminPanel();
+  renderEvents();
+})();
