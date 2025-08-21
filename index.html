@@ -1,68 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IAA Events</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link rel="icon" type="image/x-icon" href="Assets/Images/IAA.ico">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="nav">
-    <div class="brand">
-    <img src="Assets/Images/iaa.png" alt="IAA Logo" class="logo" />
-      <span>IAA Events</span>
-    </div>
-    <div id="userArea" class="user-area">
-      <button id="loginBtn" class="btn primary">Login with Discord</button>
-    </div>
+  <header>
+    <h1>IAA Events</h1>
   </header>
 
-  <main class="container">
-    <section id="adminPanel" class="admin-panel hidden">
-      <h2>Create Event (Admins Only)</h2>
-      <form id="eventForm" class="event-form">
-        <div class="grid">
-          <label>Title
-            <input type="text" id="title" placeholder="Event title" required>
-          </label>
-          <label>Host
-            <input type="text" id="host" placeholder="Host name" required>
-          </label>
-          <label>Date & Time
-            <input type="datetime-local" id="date" required>
-          </label>
-          <label>Location
-            <input type="text" id="location" placeholder=" Server / Link" required>
-          </label>
-          <label>Image URL (top of card)
-            <input type="url" id="imageUrl" placeholder="https://example.com/image.jpg" required>
-          </label>
-        </div>
-        <label>Description
-          <textarea id="description" rows="4" placeholder="What is this event about?"></textarea>
-        </label>
+  <!-- User login/logout/profile area -->
+  <div id="user-area"></div>
 
-        <label class="checkbox">
-          <input type="checkbox" id="isFree" checked>
-          Free event
-        </label>
-
-        <button type="submit" class="btn success">Create Event</button>
-      </form>
-      <hr class="divider">
-    </section>
-
-    <section>
-      <h2>Upcoming Events</h2>
-      <div id="eventsGrid" class="events-grid"></div>
-    </section>
+  <!-- Events list -->
+  <main>
+    <section id="events"></section>
   </main>
 
-  <footer class="footer">
-    <span>This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom. Portions of the materials contained herein are property of Another Axiom. ©2021 Another Axiom Inc.</span>
-  </footer>
+  <!-- Admin panel (only shown for whitelisted users) -->
+  <section id="admin-panel" style="display:none;">
+    <h2>Create Event</h2>
+    <form id="create-event-form">
+      <input type="text" id="event-title" placeholder="Event Title" required>
+      <input type="text" id="event-host" placeholder="Host Name" required>
+      <input type="date" id="event-date" required>
+      <input type="text" id="event-location" placeholder="Location" required>
+      <input type="url" id="event-image" placeholder="Image URL" required>
+      <textarea id="event-description" placeholder="Description"></textarea>
+      <button type="submit">Create Event</button>
+    </form>
+  </section>
 
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
