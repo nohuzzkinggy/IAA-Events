@@ -8,6 +8,7 @@ const OAUTH_SCOPES = ["identify"];
 // Admin whitelist — only these users can create/delete events
 const ADMIN_WHITELIST = [
   "927302486518296647" // your Discord ID
+  
 ];
 
 /* ---------------------------
