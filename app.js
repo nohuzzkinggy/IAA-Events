@@ -112,7 +112,6 @@ const loginBtn = document.getElementById("loginBtn");
 const userArea = document.getElementById("userArea");
 const eventForm = document.getElementById("eventForm");
 
-let EVENTS = loadEvents();
 let CURRENT_USER = null;
 let IS_ADMIN = false;
 
