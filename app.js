@@ -7,7 +7,7 @@ const OAUTH_SCOPES = ["identify"];
 
 // Admin whitelist — only these users can create/delete events
 const ADMIN_WHITELIST = [
-  "927302486518296647" // your Discord ID
+  // "123456789012345678", // <- your Discord user ID
 ];
 
 /* ---------------------------
@@ -106,52 +106,75 @@ function avatarUrl(user){
 /* ---------------------------
    RENDERING
 ---------------------------- */
+const eventsGrid = document.getElementById("eventsGrid");
+const adminPanel = document.getElementById("adminPanel");
+const loginBtn = document.getElementById("loginBtn");
+const userArea = document.getElementById("userArea");
+const eventForm = document.getElementById("eventForm");
 
-function renderEvents(user){
-  const container = document.getElementById("events");
-  container.innerHTML = "";
-  EVENTS.forEach(ev => {
-    const card = document.createElement("div");
-    card.className = "event-card";
-    card.innerHTML = `
-      <div style="position:relative;">
-        ${ev.isFree ? '<span class="badge">Free</span>' : ''}
-        <img src="${ev.imageUrl}" alt="Event image">
-      </div>
-      <div class="event-card-content">
-        <h3>${ev.title}</h3>
-        <p class="date">${new Date(ev.date).toLocaleString()} • ${ev.location}</p>
-        <p class="host">Hosted by ${ev.host}</p>
-        <p class="description">${ev.description}</p>
-      </div>
-      <button>Details</button>
-    `;
+let EVENTS = loadEvents();
+let CURRENT_USER = null;
+let IS_ADMIN = false;
 
-    if(user && ADMIN_WHITELIST.includes(user.id)){
-      const del = document.createElement("button");
-      del.textContent = "Delete";
-      del.style.background = "var(--warn)";
-      del.style.marginLeft = "16px";
-      del.onclick = () => {
-        EVENTS = EVENTS.filter(e => e.id !== ev.id);
-        saveEvents(EVENTS);
-        renderEvents(user);
-      };
-      card.appendChild(del);
-    }
-    container.appendChild(card);
+function renderUserArea(){
+  userArea.innerHTML = "";
+  if(!CURRENT_USER){
+    const btn = document.createElement("button");
+    btn.className = "btn primary";
+    btn.id = "loginBtn";
+    btn.textContent = "Login with Discord";
+    btn.addEventListener("click", ()=> window.location.href = buildAuthURL());
+    userArea.appendChild(btn);
+    return;
+  }
+  const chip = document.createElement("div");
+  chip.className = "user-chip";
+  const img = document.createElement("img");
+  img.src = avatarUrl(CURRENT_USER);
+  const name = document.createElement("span");
+  name.textContent = CURRENT_USER.global_name || CURRENT_USER.username;
+  const adminTag = document.createElement("span");
+  adminTag.style.fontSize = "12px";
+  adminTag.style.color = "var(--muted)";
+  adminTag.textContent = IS_ADMIN ? " (admin)" : "";
+  const logout = document.createElement("button");
+  logout.className = "btn ghost";
+  logout.textContent = "Log out";
+  logout.addEventListener("click", ()=>{
+    sessionStorage.removeItem("discord_token");
+    CURRENT_USER = null;
+    IS_ADMIN = false;
+    renderUserArea();
+    renderAdminPanel();
   });
+  chip.appendChild(img);
+  chip.appendChild(name);
+  chip.appendChild(adminTag);
+  userArea.appendChild(chip);
+  userArea.appendChild(logout);
 }
 
+function renderAdminPanel(){
+  if(IS_ADMIN){
+    adminPanel.classList.remove("hidden");
+  } else {
+    adminPanel.classList.add("hidden");
+  }
+}
 
-function renderUserArea(user){
-  const area = document.getElementById("user-area");
-  if(!user){
-    area.innerHTML = `<button id="login-btn">Login with Discord</button>`;
-    document.getElementById("login-btn").onclick = () => {
-      window.location.href = buildAuthURL();
-    };
-    document.getElementById("admin-panel").style.display = "none";
+function fmtDate(iso){
+  try{
+    const d = new Date(iso);
+    return d.toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+  }catch{ return iso; }
+}
+
+function renderEvents(){
+  eventsGrid.innerHTML = "";
+  if(EVENTS.length === 0){
+    const empty = document.createElement("div");
+    empty.textContent = "No events yet.";
+    eventsGrid.appendChild(empty);
     return;
   }
 

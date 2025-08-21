@@ -21,133 +21,80 @@ html, body{
   font-family: magistral-bold, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
-a{ color: var(--brand); text-decoration: none; }
-img{ max-width: 100%; display:block; }
-
-.hidden{ display:none; }
-
-.nav{
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(15,17,21,.7);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 16px;
-  display:flex; align-items:center; justify-content: space-between;
-  font-family: magistral-bold, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-
-}
-.brand{ display:flex; align-items:center; gap:10px; font-weight:700; }
-.logo{ width:28px; height:28px; }
-
-.user-area{ 
-  display:flex; align-items:center; gap:10px; 
-  font-family: magistral-bold, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-
-}
-.user-chip{
-  display:flex; align-items:center; gap:10px;
+header{
   background: var(--panel);
-  padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-}
-.user-chip img{ width:24px; height:24px; border-radius: 50%; }
-
-.container{ max-width: 1100px; margin: 24px auto; padding: 0 16px; }
-
-.admin-panel{
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
+  padding: 20px;
+  text-align: center;
   box-shadow: var(--shadow);
-  margin-bottom: 24px;
 }
-.event-form .grid{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: 12px;
+
+h1{
+  margin:0;
+  font-size: 2rem;
+  color: var(--brand);
 }
-.event-form label{
-  display:flex; flex-direction:column; gap:6px;
-  font-size: 14px; color: var(--muted);
+
+main{
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.event-form input, .event-form textarea{
+
+/* -------------------------
+   Event Cards
+------------------------- */
+.event-card {
   background: var(--card);
   border: 1px solid var(--border);
-  color: var(--text);
-  padding: 10px 12px; border-radius: 10px;
-  outline: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin: 16px auto;
+  max-width: 400px; /* smaller card */
+  text-align: left;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.event-form input:focus, .event-form textarea:focus{
-  border-color: var(--brand);
-}
-.checkbox{ display:flex; align-items:center; gap:10px; margin: 8px 0 16px; }
 
-.btn{
-  border: 1px solid var(--border);
-  background: #1b2030;
-  color: var(--text);
-  padding: 10px 14px;
-  border-radius: 10px;
+.event-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 32px rgba(0,0,0,.4);
+}
+
+.event-card img {
+  width: 100%;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+}
+
+.event-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  color: var(--brand);
+}
+
+.event-card p {
+  margin: 4px 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.event-card button {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: var(--warn);
+  border: none;
+  border-radius: 8px;
+  color: white;
   cursor: pointer;
 }
-.btn.primary{ background: var(--brand); border-color: #3e49c9; }
-.btn.success{ background: var(--ok); border-color: #1a9b4a; }
-.btn.danger{ background: var(--warn); border-color: #be2e2e; }
-.btn.ghost{ background: transparent; }
 
-.divider{ border: none; height:1px; background: var(--border); margin: 18px 0; }
-
-.events-grid{
-  display:grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px;
-}
-.card{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  display:flex; flex-direction: column;
-}
-.card .thumb{
-  position: relative;
-  aspect-ratio: 16/9;
-  background: #0b0d12;
-}
-.card .thumb img{
-  width: 100%; height: 100%; object-fit: cover;
-}
-.badge{
-  position: absolute; top: 10px; left: 10px;
-  background: #0d111b; border: 1px solid var(--border);
-  padding: 4px 8px; border-radius: 999px; font-size: 12px; color: var(--muted);
-}
-
-.card .body{
-  padding: 12px;
-  display:flex; flex-direction: column; gap: 6px;
-}
-.card h3{ margin: 0; font-size: 18px; }
-.card .meta{ color: var(--muted); font-size: 13px; }
-.card .desc{ color: #cdd3df; font-size: 14px; line-height: 1.4; }
-
-.card .actions{
-  display:flex; align-items:center; gap: 8px; padding: 12px;
-  border-top: 1px solid var(--border);
-  margin-top: auto;
-}
-.footer{
-  margin: 40px 0 20px; text-align:center; color: var(--muted);
-  font-family: magistral-bold, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-}
-
-@font-face {
-  font-family: magistral-bold;
-  src: url('fonts/magistral-bold.woff2') format('woff2'),
-       url('Assets/fonts/magistral-bold.woff') format('woff');
-  font-weight: bold;
-  font-style: normal;
+/* -------------------------
+   Responsive
+------------------------- */
+@media (max-width: 600px) {
+  .event-card {
+    max-width: 90%;
+  }
 }
